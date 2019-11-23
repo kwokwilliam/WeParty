@@ -30,3 +30,37 @@ This project works best as a native mobile app because users are most likely goi
 
 When the user has reached home, we will clear their location off the database. We do not need to collect their data.
 In the future, we can think about expanding this to collect their data anonymously and see where trips may have been cut short, so we can potentially investigate shady areas.
+
+-----
+
+## Database structure
+
+```
+UserIDsToName
+	<userId>: Name
+ActiveWatchList
+	<userId>
+		<rngPartyKey>: boolean
+		<rngPartyKey>: boolean
+ActiveUserParties
+	<rngPartyKey>
+		userId
+		nameOfParty
+		homeLocation
+			lat
+			lng
+		partyLocation
+			lat
+			lng
+		timeStart
+		timeEnd
+		emergencyCalled
+		liveLocation
+			lat
+			lng
+PastWatchList
+	<userId>
+		<rngPartyKey>: boolean
+PastUserParties
+	<rngPartyKey>
+```

@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
 
             val database = FirebaseDatabase.getInstance()
             val myRef = database.getReference("message")
-            myRef.setValue("hi")
+//            myRef.setValue("hi").addOnCompleteListener()
         }
     }
 
