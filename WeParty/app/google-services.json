@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "123437282117",
+    "firebase_url": "https://weparty-b0863.firebaseio.com",
+    "project_id": "weparty-b0863",
+    "storage_bucket": "weparty-b0863.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123437282117:android:5ca9733a3529099462842c",
+        "android_client_info": {
+          "package_name": "edu.uw.wkwok16.weparty"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "123437282117-1suh57c3c1sum3kugksu14ms7sacbsqq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANTzlehCi_FlK_07LJpykOVquxvXS9s6w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "123437282117-1suh57c3c1sum3kugksu14ms7sacbsqq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
