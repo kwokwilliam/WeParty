@@ -12,7 +12,7 @@ interface WePartyDataService {
      */
     fun AddParty(
         party: Party,
-        onComplete: OnCompleteFunction = null
+        onComplete: OnCompleteFunction
     )
 
     /**
@@ -23,7 +23,7 @@ interface WePartyDataService {
     fun UpdateParty(
         partyId: PartyId,
         updatedParty: Party,
-        onComplete: OnCompleteFunction = null
+        onComplete: OnCompleteFunction
     )
 
     /**
@@ -40,7 +40,7 @@ interface WePartyDataService {
      */
     fun RemoveParty(
         partyId: PartyId,
-        onComplete: OnCompleteFunction = null
+        onComplete: OnCompleteFunction
     )
 
     /**
@@ -51,7 +51,7 @@ interface WePartyDataService {
     fun SetLiveLocation(
         partyId: PartyId,
         userLocation: Location,
-        onComplete: OnCompleteFunction = null
+        onComplete: OnCompleteFunction
     )
 
     /**
@@ -59,7 +59,7 @@ interface WePartyDataService {
      */
     fun SetEmergencyCalled(
         partyId: PartyId,
-        onComplete: OnCompleteFunction = null
+        onComplete: OnCompleteFunction
     )
 
     /**
@@ -67,7 +67,8 @@ interface WePartyDataService {
      */
     fun AddObserver(
         partyId: PartyId,
-        userPhoneNumber: String
+        userPhoneNumber: String,
+        onComplete: OnCompleteFunction
     )
 
     /**
@@ -75,7 +76,8 @@ interface WePartyDataService {
      */
     fun RemoveObserver(
         partyId: PartyId,
-        userPhoneNumber: String
+        userPhoneNumber: String,
+        onComplete: OnCompleteFunction
     )
 
     /**
@@ -84,5 +86,23 @@ interface WePartyDataService {
      */
     fun ListenToWatchLists(
         functionToRun: (userToWatchList: Map<String, WatchList>) -> Unit
+    )
+
+    /**
+     * Adds a user to the database via their phone number as their ID
+     */
+    fun AddUser(
+        phoneNumber: String,
+        name: String,
+        onComplete: OnCompleteFunction
+    )
+
+    /**
+     * Updates a user in the database via their phone number
+     */
+    fun UpdateUser(
+        phoneNumber: String,
+        name: String,
+        onComplete: OnCompleteFunction
     )
 }

@@ -1,7 +1,9 @@
 package edu.uw.wkwok16.weparty
 
 import android.annotation.SuppressLint
+import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
@@ -19,14 +21,20 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import edu.uw.wkwok16.weparty.DataService.FirebasePartyDataService
+import edu.uw.wkwok16.weparty.DataService.Party
+import edu.uw.wkwok16.weparty.DataService.WePartyDataService
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import java.util.*
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener {
 
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var mapboxMap: MapboxMap
+
+    private val dataService: WePartyDataService = FirebasePartyDataService()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,10 +53,46 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
         fab.setOnClickListener { view ->
 //            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                .setAction("Action", null).show()
+//
+//            val database = FirebaseDatabase.getInstance()
+//            val myRef = database.getReference("message")
+////            myRef.setValue("hi").addOnCompleteListener()
 
-            val database = FirebaseDatabase.getInstance()
-            val myRef = database.getReference("message")
-//            myRef.setValue("hi").addOnCompleteListener()
+            val homeLocation = Location("homeLocation")
+            homeLocation.latitude = 111.1
+            homeLocation.longitude = 11.1
+            val partyLocation = Location("partyLocation")
+            partyLocation.latitude = 2.2
+            partyLocation.longitude = 2.2
+            val userLocation = Location("userLocation")
+            userLocation.latitude = 3.3
+            userLocation.longitude = 3.3
+            val liveLocation = Location("liveLocation")
+            liveLocation.latitude = 4.4
+            liveLocation.longitude = 4.4
+
+            dataService.AddParty(
+                Party(
+                    "555-123-1234",
+                    "William",
+                    homeLocation,
+                    partyLocation,
+                    Date(),
+                    Date(),
+                    userLocation,
+                    false,
+                    liveLocation
+                )
+            ){ task ->
+                run {
+
+                    if (task.isSuccessful) {
+                        Log.i("task", "Task successful")
+                    } else {
+                        Log.i("task", task.exception.toString())
+                    }
+                }
+            }
         }
     }
 
