@@ -12,7 +12,7 @@ interface WePartyDataService {
      */
     fun AddParty(
         party: Party,
-        onComplete: OnCompleteFunction = null
+        onComplete: OnCompleteFunction
     )
 
     /**
@@ -23,7 +23,7 @@ interface WePartyDataService {
     fun UpdateParty(
         partyId: PartyId,
         updatedParty: Party,
-        onComplete: OnCompleteFunction = null
+        onComplete: OnCompleteFunction
     )
 
     /**
@@ -40,7 +40,7 @@ interface WePartyDataService {
      */
     fun RemoveParty(
         partyId: PartyId,
-        onComplete: OnCompleteFunction = null
+        onComplete: OnCompleteFunction
     )
 
     /**
@@ -51,7 +51,7 @@ interface WePartyDataService {
     fun SetLiveLocation(
         partyId: PartyId,
         userLocation: Location,
-        onComplete: OnCompleteFunction = null
+        onComplete: OnCompleteFunction
     )
 
     /**
@@ -59,7 +59,7 @@ interface WePartyDataService {
      */
     fun SetEmergencyCalled(
         partyId: PartyId,
-        onComplete: OnCompleteFunction = null
+        onComplete: OnCompleteFunction
     )
 
     /**
