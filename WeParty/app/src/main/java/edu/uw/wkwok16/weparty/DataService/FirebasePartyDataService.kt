@@ -22,7 +22,7 @@ class FirebasePartyDataService: WePartyDataService {
         updatedParty: Party,
         onComplete: OnCompleteFunction
     ) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     override fun GetParties(functionToRun: (parties: Map<PartyId, Party>) -> Unit) {
@@ -45,15 +45,23 @@ class FirebasePartyDataService: WePartyDataService {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun AddObserver(partyId: PartyId, userPhoneNumber: String) {
+    override fun AddObserver(partyId: PartyId, userPhoneNumber: String, onComplete: OnCompleteFunction) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun RemoveObserver(partyId: PartyId, userPhoneNumber: String) {
+    override fun RemoveObserver(partyId: PartyId, userPhoneNumber: String, onComplete: OnCompleteFunction) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun ListenToWatchLists(functionToRun: (userToWatchList: Map<String, WatchList>) -> Unit) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun AddUser(phoneNumber: String, name: String, onComplete: OnCompleteFunction) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun UpdateUser(phoneNumber: String, name: String, onComplete: OnCompleteFunction) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
