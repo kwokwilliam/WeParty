@@ -1,7 +1,6 @@
 package edu.uw.wkwok16.weparty.DataService
 
 import android.location.Location
-import com.google.android.gms.tasks.Task
 import com.google.firebase.database.Exclude
 import com.google.firebase.database.IgnoreExtraProperties
 import java.util.*

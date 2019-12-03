@@ -1,7 +1,9 @@
 package edu.uw.wkwok16.weparty
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import com.google.android.material.snackbar.Snackbar
@@ -51,55 +53,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
         setSupportActionBar(toolbar)
 
         fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                .setAction("Action", null).show()
-//
-//            val database = FirebaseDatabase.getInstance()
-//            val myRef = database.getReference("message")
-////            myRef.setValue("hi").addOnCompleteListener()
-
-//            val homeLocation = Location("homeLocation")
-//            homeLocation.latitude = 111.1
-//            homeLocation.longitude = 11.1
-//            val partyLocation = Location("partyLocation")
-//            partyLocation.latitude = 2.2
-//            partyLocation.longitude = 2.2
-//            val userLocation = Location("userLocation")
-//            userLocation.latitude = 3.3
-//            userLocation.longitude = 3.3
-//            val liveLocation = Location("liveLocation")
-//            liveLocation.latitude = 4.4
-//            liveLocation.longitude = 4.4
-//
-//            dataService.AddParty(
-//                Party(
-//                    "555-123-1234",
-//                    "William",
-//                    homeLocation,
-//                    partyLocation,
-//                    Date(),
-//                    Date(),
-//                    userLocation,
-//                    false,
-//                    liveLocation,
-//                    false
-//                ),
-//                { partyId ->
-//                    run {
-////                        dataService.GetParties({}, {})
-//
-////                        dataService.GetParties {  }
-//                    }
-//                },
-//                {}
-//            )
-
-//            dataService.GetParties({ parties ->
-//                parties.forEach { party ->
-//                    dataService.RemoveParty(party.key, {}, {})
-//                }
-//            }, {})
-
+            emergencyCall()
         }
     }
 
@@ -216,5 +170,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         mapView?.onSaveInstanceState(outState)
+    }
+
+    fun emergencyCall() {
+        val intent = Intent(Intent.ACTION_DIAL)
+        intent.data = Uri.parse("tel:911")
+        intent.resolveActivity(packageManager)?.let {
+            startActivity(intent)
+        }
     }
 }
