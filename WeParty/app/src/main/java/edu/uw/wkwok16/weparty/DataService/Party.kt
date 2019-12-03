@@ -17,7 +17,7 @@ data class Party(
     val userLocation: Location,
     val emergencyCalled: Boolean,
     val liveLocation: Location,
-    val past: Boolean
+    val homeSafe: Boolean
 ) {
     @Exclude
     fun toMap(): Map<String, Any?> {
@@ -42,10 +42,10 @@ data class Party(
             "liveLocation" to mapOf(
                 "lat" to liveLocation.latitude,
                 "lng" to liveLocation.longitude
-            )
+            ),
+            "homeSafe" to homeSafe
         )
     }
 }
 
 typealias PartyId = String
-typealias WatchList = Map<PartyId, Boolean>

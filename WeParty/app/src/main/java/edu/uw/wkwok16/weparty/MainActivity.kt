@@ -71,32 +71,32 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
             liveLocation.latitude = 4.4
             liveLocation.longitude = 4.4
 
-            dataService.AddParty(
-                Party(
-                    "555-123-1234",
-                    "William",
-                    homeLocation,
-                    partyLocation,
-                    Date(),
-                    Date(),
-                    userLocation,
-                    false,
-                    liveLocation,
-                    false
-                )
-            ){ task ->
-                run {
-
-                    if (task.isSuccessful) {
-                        Log.i("task", "Task successful")
-                    } else {
-                        Log.i("task", task.exception.toString())
-                    }
-
-
-                    dataService.GetParties {  }
-                }
-            }
+//            dataService.AddParty(
+//                Party(
+//                    "555-123-1234",
+//                    "William",
+//                    homeLocation,
+//                    partyLocation,
+//                    Date(),
+//                    Date(),
+//                    userLocation,
+//                    false,
+//                    liveLocation,
+//                    false
+//                )
+//            ){ task ->
+//                run {
+//
+//                    if (task.isSuccessful) {
+//                        Log.i("task", "Task successful")
+//                    } else {
+//                        Log.i("task", task.exception.toString())
+//                    }
+//
+//
+//                    dataService.GetParties {  }
+//                }
+//            }
         }
     }
 

@@ -12,7 +12,7 @@ interface WePartyDataService {
      */
     fun AddParty(
         party: Party,
-        onSuccess: ((partyKey: PartyId) -> Unit),
+        onSuccess: ((partyId: PartyId) -> Unit),
         onFailure: () -> Unit
     )
 
@@ -29,22 +29,16 @@ interface WePartyDataService {
     )
 
     /**
-     * GetActiveParties will grab active parties and pass them to the function to run within a listener.
+     * GetParties will grab parties and pass them to the function to run within a listener.
      *
      * This function gets live party data!
+     *
+     * It returns a function that when called will stop the event listener.
      */
-    fun GetActiveParties(
+    fun GetParties(
         functionToRun: (parties: Map<PartyId, Party>) -> Unit,
         onFailure: () -> Unit
-    )
-
-    /**
-     * GetPastParties will grab past parties and pass them to the function to run within a listener
-     */
-    fun GetPastParties(
-        functionToRun: (parties: Map<PartyId, Party>) -> Unit,
-        onFailure: () -> Unit
-    )
+    ): () -> Unit
 
     /**
      * RemoveParty removes the provided party. (It does not add the party to the past parties list)
@@ -73,35 +67,6 @@ interface WePartyDataService {
     fun SetEmergencyCalled(
         partyId: PartyId,
         onSuccess: () -> Unit,
-        onFailure: () -> Unit
-    )
-
-    /**
-     * AddObserver adds the partyId to the provided user's observation list
-     */
-    fun AddObserver(
-        partyId: PartyId,
-        userPhoneNumber: String,
-        onSuccess: () -> Unit,
-        onFailure: () -> Unit
-    )
-
-    /**
-     * RemoveObserver removes the partyId from the provided user's observation list
-     */
-    fun RemoveObserver(
-        partyId: PartyId,
-        userPhoneNumber: String,
-        onSuccess: () -> Unit,
-        onFailure: () -> Unit
-    )
-
-    /**
-     * ListenToWatchLists will listen in on any watchlist changes and run the function provided when
-     * a change occurs.
-     */
-    fun ListenToWatchLists(
-        functionToRun: (userToWatchList: Map<String, WatchList>) -> Unit,
         onFailure: () -> Unit
     )
 
