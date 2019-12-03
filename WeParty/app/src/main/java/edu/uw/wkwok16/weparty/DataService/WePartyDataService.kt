@@ -8,39 +8,45 @@ interface WePartyDataService {
     /**
      * AddParty adds a party to the database. We currently use the user's phone number as their ID
      *
-     * When the addition is made, the onComplete function will be called.
+     * When the addition is made, the onSuccess function will be called.
      */
     fun AddParty(
         party: Party,
-        onComplete: OnCompleteFunction
+        onSuccess: ((partyId: PartyId) -> Unit),
+        onFailure: () -> Unit
     )
 
     /**
      * UpdateParty updates a party in the database.
      *
-     * When the update is made, the onComplete function will be called.
+     * When the update is made, the onSuccess function will be called.
      */
     fun UpdateParty(
         partyId: PartyId,
         updatedParty: Party,
-        onComplete: OnCompleteFunction
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
      * GetParties will grab parties and pass them to the function to run within a listener.
      *
      * This function gets live party data!
+     *
+     * It returns a function that when called will stop the event listener.
      */
     fun GetParties(
-        functionToRun: (parties: Map<PartyId, Party>) -> Unit
-    )
+        functionToRun: (parties: Map<PartyId, Party>) -> Unit,
+        onFailure: () -> Unit
+    ): () -> Unit
 
     /**
      * RemoveParty removes the provided party. (It does not add the party to the past parties list)
      */
     fun RemoveParty(
         partyId: PartyId,
-        onComplete: OnCompleteFunction
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
@@ -51,7 +57,8 @@ interface WePartyDataService {
     fun SetLiveLocation(
         partyId: PartyId,
         userLocation: Location,
-        onComplete: OnCompleteFunction
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
@@ -59,33 +66,8 @@ interface WePartyDataService {
      */
     fun SetEmergencyCalled(
         partyId: PartyId,
-        onComplete: OnCompleteFunction
-    )
-
-    /**
-     * AddObserver adds the partyId to the provided user's observation list
-     */
-    fun AddObserver(
-        partyId: PartyId,
-        userPhoneNumber: String,
-        onComplete: OnCompleteFunction
-    )
-
-    /**
-     * RemoveObserver removes the partyId from the provided user's observation list
-     */
-    fun RemoveObserver(
-        partyId: PartyId,
-        userPhoneNumber: String,
-        onComplete: OnCompleteFunction
-    )
-
-    /**
-     * ListenToWatchLists will listen in on any watchlist changes and run the function provided when
-     * a change occurs.
-     */
-    fun ListenToWatchLists(
-        functionToRun: (userToWatchList: Map<String, WatchList>) -> Unit
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
@@ -94,7 +76,8 @@ interface WePartyDataService {
     fun AddUser(
         phoneNumber: String,
         name: String,
-        onComplete: OnCompleteFunction
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
@@ -103,6 +86,7 @@ interface WePartyDataService {
     fun UpdateUser(
         phoneNumber: String,
         name: String,
-        onComplete: OnCompleteFunction
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 }
