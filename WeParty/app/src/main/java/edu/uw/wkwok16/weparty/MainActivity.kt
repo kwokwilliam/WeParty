@@ -2,7 +2,10 @@ package edu.uw.wkwok16.weparty
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.location.Location
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
@@ -20,14 +23,44 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-
+import edu.uw.wkwok16.weparty.DataService.FirebasePartyDataService
+import edu.uw.wkwok16.weparty.DataService.Party
+import edu.uw.wkwok16.weparty.DataService.WePartyDataService
+import com.mapbox.android.core.location.LocationEngine;
+import com.mapbox.android.core.location.LocationEngineCallback;
+import com.mapbox.android.core.location.LocationEngineProvider;
+import com.mapbox.android.core.location.LocationEngineRequest;
+import com.mapbox.android.core.location.LocationEngineResult;
+import edu.uw.wkwok16.weparty.DataService.PartyId
+import java.lang.ref.WeakReference;
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import java.lang.Exception
+import java.util.*
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener {
 
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var mapboxMap: MapboxMap
+    private val dataService: WePartyDataService = FirebasePartyDataService()
+    private var locationEngine:LocationEngine = LocationEngineProvider.getBestLocationEngine(this)
+    private val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
+    private val currentPartyId : PartyId? =  null
+    private val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
+    private var callback: LocationEngineCallback<LocationEngineResult> = object: LocationEngineCallback<LocationEngineResult> {
+       override fun onSuccess(current: LocationEngineResult){
+            val theCurrentLocation = current.lastLocation
+            if(theCurrentLocation != null && currentPartyId != null){
+                dataService.SetLiveLocation(currentPartyId, theCurrentLocation, {},{})
+            }
+
+        }
+
+        override fun onFailure(exception: Exception){
+           val failToast = Toast.makeText(applicationContext, "can't give live service", Toast.LENGTH_LONG)
+            failToast.show()
+        }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,14 +76,31 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener { view ->
+        create_party_button.setOnClickListener { view ->
             val intent = Intent(this, PartyDetail :: class.java)
             startActivity(intent)
+        }
 
+        fab.setOnClickListener { view ->
             val database = FirebaseDatabase.getInstance()
             val myRef = database.getReference("message")
 //            myRef.setValue("hi").addOnCompleteListener()
+            emergencyCall()
         }
+    }
+
+        /**
+    * Set up the LocationEngine and the parameters for querying the device's location
+    */
+    @SuppressLint("MissingPermission")
+    private fun initLocationEngine() {
+        locationEngine = LocationEngineProvider.getBestLocationEngine(this)
+
+        var request = LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+        .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+        .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build()
+        locationEngine.requestLocationUpdates(request, callback, getMainLooper())
+        locationEngine.getLastLocation(callback)
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -79,7 +129,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                 .build()
 
             // Get an instance of the LocationComponent and then adjust its settings
-            mapboxMap.locationComponent.apply {
+           mapboxMap.locationComponent.apply {
 
                 // Activate the LocationComponent with options
                 activateLocationComponent(locationComponentActivationOptions)
@@ -93,6 +143,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                 // Set the LocationComponent's render mode
                 renderMode = RenderMode.COMPASS
             }
+
+
         } else {
             permissionsManager = PermissionsManager(this)
             permissionsManager.requestLocationPermissions(this)
@@ -166,5 +218,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         mapView?.onSaveInstanceState(outState)
+    }
+
+    fun emergencyCall() {
+        val intent = Intent(Intent.ACTION_DIAL)
+        intent.data = Uri.parse("tel:911")
+        intent.resolveActivity(packageManager)?.let {
+            startActivity(intent)
+        }
     }
 }
