@@ -8,31 +8,42 @@ interface WePartyDataService {
     /**
      * AddParty adds a party to the database. We currently use the user's phone number as their ID
      *
-     * When the addition is made, the onComplete function will be called.
+     * When the addition is made, the onSuccess function will be called.
      */
     fun AddParty(
         party: Party,
-        onComplete: OnCompleteFunction
+        onSuccess: ((partyKey: PartyId) -> Unit),
+        onFailure: () -> Unit
     )
 
     /**
      * UpdateParty updates a party in the database.
      *
-     * When the update is made, the onComplete function will be called.
+     * When the update is made, the onSuccess function will be called.
      */
     fun UpdateParty(
         partyId: PartyId,
         updatedParty: Party,
-        onComplete: OnCompleteFunction
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
-     * GetParties will grab parties and pass them to the function to run within a listener.
+     * GetActiveParties will grab active parties and pass them to the function to run within a listener.
      *
      * This function gets live party data!
      */
-    fun GetParties(
-        functionToRun: (parties: Map<PartyId, Party>) -> Unit
+    fun GetActiveParties(
+        functionToRun: (parties: Map<PartyId, Party>) -> Unit,
+        onFailure: () -> Unit
+    )
+
+    /**
+     * GetPastParties will grab past parties and pass them to the function to run within a listener
+     */
+    fun GetPastParties(
+        functionToRun: (parties: Map<PartyId, Party>) -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
@@ -40,7 +51,8 @@ interface WePartyDataService {
      */
     fun RemoveParty(
         partyId: PartyId,
-        onComplete: OnCompleteFunction
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
@@ -51,7 +63,8 @@ interface WePartyDataService {
     fun SetLiveLocation(
         partyId: PartyId,
         userLocation: Location,
-        onComplete: OnCompleteFunction
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
@@ -59,7 +72,8 @@ interface WePartyDataService {
      */
     fun SetEmergencyCalled(
         partyId: PartyId,
-        onComplete: OnCompleteFunction
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
@@ -68,7 +82,8 @@ interface WePartyDataService {
     fun AddObserver(
         partyId: PartyId,
         userPhoneNumber: String,
-        onComplete: OnCompleteFunction
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
@@ -77,7 +92,8 @@ interface WePartyDataService {
     fun RemoveObserver(
         partyId: PartyId,
         userPhoneNumber: String,
-        onComplete: OnCompleteFunction
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
@@ -85,7 +101,8 @@ interface WePartyDataService {
      * a change occurs.
      */
     fun ListenToWatchLists(
-        functionToRun: (userToWatchList: Map<String, WatchList>) -> Unit
+        functionToRun: (userToWatchList: Map<String, WatchList>) -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
@@ -94,7 +111,8 @@ interface WePartyDataService {
     fun AddUser(
         phoneNumber: String,
         name: String,
-        onComplete: OnCompleteFunction
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 
     /**
@@ -103,6 +121,7 @@ interface WePartyDataService {
     fun UpdateUser(
         phoneNumber: String,
         name: String,
-        onComplete: OnCompleteFunction
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
     )
 }
