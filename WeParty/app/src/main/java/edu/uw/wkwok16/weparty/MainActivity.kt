@@ -81,7 +81,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                     Date(),
                     userLocation,
                     false,
-                    liveLocation
+                    liveLocation,
+                    false
                 )
             ){ task ->
                 run {
@@ -91,6 +92,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                     } else {
                         Log.i("task", task.exception.toString())
                     }
+
+
+                    dataService.GetParties {  }
                 }
             }
         }

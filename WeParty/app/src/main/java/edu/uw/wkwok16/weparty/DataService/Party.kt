@@ -16,7 +16,8 @@ data class Party(
     val timeEnd: Date,
     val userLocation: Location,
     val emergencyCalled: Boolean,
-    val liveLocation: Location
+    val liveLocation: Location,
+    val past: Boolean
 ) {
     @Exclude
     fun toMap(): Map<String, Any?> {
@@ -47,5 +48,4 @@ data class Party(
 }
 
 typealias PartyId = String
-typealias OnCompleteFunction = ((task: Task<Void>) -> Unit)
 typealias WatchList = Map<PartyId, Boolean>
