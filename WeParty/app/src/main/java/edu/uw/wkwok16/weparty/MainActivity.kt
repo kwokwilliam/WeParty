@@ -1,7 +1,9 @@
 package edu.uw.wkwok16.weparty
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import com.google.android.material.snackbar.Snackbar
@@ -97,6 +99,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 //                    dataService.GetParties {  }
 //                }
 //            }
+            emergencyCall()
         }
     }
 
@@ -213,5 +216,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         mapView?.onSaveInstanceState(outState)
+    }
+
+    fun emergencyCall() {
+        val intent = Intent(Intent.ACTION_DIAL)
+        intent.data = Uri.parse("tel:911")
+        intent.resolveActivity(packageManager)?.let {
+            startActivity(intent)
+        }
     }
 }
