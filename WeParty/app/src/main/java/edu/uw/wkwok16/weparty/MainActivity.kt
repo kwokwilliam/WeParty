@@ -53,52 +53,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
         setSupportActionBar(toolbar)
 
         fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                .setAction("Action", null).show()
-//
-//            val database = FirebaseDatabase.getInstance()
-//            val myRef = database.getReference("message")
-////            myRef.setValue("hi").addOnCompleteListener()
-
-            val homeLocation = Location("homeLocation")
-            homeLocation.latitude = 111.1
-            homeLocation.longitude = 11.1
-            val partyLocation = Location("partyLocation")
-            partyLocation.latitude = 2.2
-            partyLocation.longitude = 2.2
-            val userLocation = Location("userLocation")
-            userLocation.latitude = 3.3
-            userLocation.longitude = 3.3
-            val liveLocation = Location("liveLocation")
-            liveLocation.latitude = 4.4
-            liveLocation.longitude = 4.4
-
-//            dataService.AddParty(
-//                Party(
-//                    "555-123-1234",
-//                    "William",
-//                    homeLocation,
-//                    partyLocation,
-//                    Date(),
-//                    Date(),
-//                    userLocation,
-//                    false,
-//                    liveLocation,
-//                    false
-//                )
-//            ){ task ->
-//                run {
-//
-//                    if (task.isSuccessful) {
-//                        Log.i("task", "Task successful")
-//                    } else {
-//                        Log.i("task", task.exception.toString())
-//                    }
-//
-//
-//                    dataService.GetParties {  }
-//                }
-//            }
             emergencyCall()
         }
     }

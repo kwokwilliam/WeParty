@@ -1,8 +1,6 @@
 package edu.uw.wkwok16.weparty.DataService
 
 import android.location.Location
-import com.google.android.gms.tasks.Task
-import java.util.*
 
 interface WePartyDataService {
     /**
