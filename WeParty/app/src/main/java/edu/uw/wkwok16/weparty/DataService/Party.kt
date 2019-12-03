@@ -22,29 +22,44 @@ data class Party(
     @Exclude
     fun toMap(): Map<String, Any?> {
         return mapOf(
-            "userPhoneNumber" to userPhoneNumber,
-            "name" to name,
-            "homeLocation" to mapOf(
-                "lat" to homeLocation.latitude,
-                "lng" to homeLocation.longitude
+            USER_PHONE_NUMBER to userPhoneNumber,
+            NAME to name,
+            HOME_LOCATION to mapOf(
+                LATITUDE to homeLocation.latitude,
+                LONGITUDE to homeLocation.longitude
             ),
-            "partyLocation" to mapOf(
-                "lat" to partyLocation.latitude,
-                "lng" to partyLocation.longitude
+            PARTY_LOCATION to mapOf(
+                LATITUDE to partyLocation.latitude,
+                LONGITUDE to partyLocation.longitude
             ),
-            "timeStart" to timeStart.time,
-            "timeEnd" to timeEnd.time,
-            "userLocation" to mapOf(
-                "lat" to userLocation.latitude,
-                "lng" to userLocation.longitude
+            TIME_START to timeStart.time,
+            TIME_END to timeEnd.time,
+            USER_LOCATION to mapOf(
+                LATITUDE to userLocation.latitude,
+                LONGITUDE to userLocation.longitude
             ),
-            "emergencyCalled" to emergencyCalled,
-            "liveLocation" to mapOf(
-                "lat" to liveLocation.latitude,
-                "lng" to liveLocation.longitude
+            EMERGENCY_CALLED to emergencyCalled,
+            LIVE_LOCATION to mapOf(
+                LATITUDE to liveLocation.latitude,
+                LONGITUDE to liveLocation.longitude
             ),
-            "homeSafe" to homeSafe
+            HOME_SAFE to homeSafe
         )
+    }
+
+    companion object PartyDataConstants {
+        const val LATITUDE = "lat"
+        const val LONGITUDE = "lng"
+        const val USER_PHONE_NUMBER = "userPhoneNumber"
+        const val NAME = "name"
+        const val HOME_LOCATION = "homeLocation"
+        const val PARTY_LOCATION = "partyLocation"
+        const val TIME_START = "timeStart"
+        const val TIME_END = "timeEnd"
+        const val USER_LOCATION = "userLocation"
+        const val EMERGENCY_CALLED = "emergencyCalled"
+        const val LIVE_LOCATION = "liveLocation"
+        const val HOME_SAFE = "homeSafe"
     }
 }
 

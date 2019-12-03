@@ -58,19 +58,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 //            val myRef = database.getReference("message")
 ////            myRef.setValue("hi").addOnCompleteListener()
 
-            val homeLocation = Location("homeLocation")
-            homeLocation.latitude = 111.1
-            homeLocation.longitude = 11.1
-            val partyLocation = Location("partyLocation")
-            partyLocation.latitude = 2.2
-            partyLocation.longitude = 2.2
-            val userLocation = Location("userLocation")
-            userLocation.latitude = 3.3
-            userLocation.longitude = 3.3
-            val liveLocation = Location("liveLocation")
-            liveLocation.latitude = 4.4
-            liveLocation.longitude = 4.4
-
+//            val homeLocation = Location("homeLocation")
+//            homeLocation.latitude = 111.1
+//            homeLocation.longitude = 11.1
+//            val partyLocation = Location("partyLocation")
+//            partyLocation.latitude = 2.2
+//            partyLocation.longitude = 2.2
+//            val userLocation = Location("userLocation")
+//            userLocation.latitude = 3.3
+//            userLocation.longitude = 3.3
+//            val liveLocation = Location("liveLocation")
+//            liveLocation.latitude = 4.4
+//            liveLocation.longitude = 4.4
+//
 //            dataService.AddParty(
 //                Party(
 //                    "555-123-1234",
@@ -83,20 +83,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 //                    false,
 //                    liveLocation,
 //                    false
-//                )
-//            ){ task ->
-//                run {
+//                ),
+//                { partyId ->
+//                    run {
+////                        dataService.GetParties({}, {})
 //
-//                    if (task.isSuccessful) {
-//                        Log.i("task", "Task successful")
-//                    } else {
-//                        Log.i("task", task.exception.toString())
+////                        dataService.GetParties {  }
 //                    }
-//
-//
-//                    dataService.GetParties {  }
+//                },
+//                {}
+//            )
+
+//            dataService.GetParties({ parties ->
+//                parties.forEach { party ->
+//                    dataService.RemoveParty(party.key, {}, {})
 //                }
-//            }
+//            }, {})
+
         }
     }
 
