@@ -5,6 +5,8 @@ import android.content.Intent
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
@@ -76,6 +78,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
         fab.setOnClickListener { view ->
             emergencyCall()
         }
+
+        val mainHandler = Handler(Looper.getMainLooper())
+        mainHandler.post(object : Runnable {
+            override fun run() {
+                initLocationEngine()
+                mainHandler.postDelayed(this, 10000)
+            }
+        })
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -93,13 +103,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
      */
     @SuppressLint("MissingPermission")
     private fun initLocationEngine() {
-       var  locationEngine = LocationEngineProvider.getBestLocationEngine(this)
+        if (PermissionsManager.areLocationPermissionsGranted(this)) {
 
-        var request = LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
-            .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
-            .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build()
-        locationEngine.requestLocationUpdates(request, callback, getMainLooper())
-        locationEngine.getLastLocation(callback)
+            var locationEngine = LocationEngineProvider.getBestLocationEngine(this)
+
+            var request = LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+                .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build()
+            locationEngine.requestLocationUpdates(request, callback, getMainLooper())
+            locationEngine.getLastLocation(callback)
+        }
     }
 
 
@@ -133,7 +146,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                 // Set the LocationComponent's render mode
                 renderMode = RenderMode.COMPASS
             }
-            initLocationEngine()
         } else {
             permissionsManager = PermissionsManager(this)
             permissionsManager.requestLocationPermissions(this)
