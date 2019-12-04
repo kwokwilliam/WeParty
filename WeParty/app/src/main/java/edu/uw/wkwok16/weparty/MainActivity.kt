@@ -26,34 +26,31 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import edu.uw.wkwok16.weparty.DataService.FirebasePartyDataService
-import edu.uw.wkwok16.weparty.DataService.Party
-import edu.uw.wkwok16.weparty.DataService.PartyId
-import edu.uw.wkwok16.weparty.DataService.WePartyDataService
+import edu.uw.wkwok16.weparty.DataService.*
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener {
-
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var mapboxMap: MapboxMap
     private var parties: Map<PartyId, Party> = mapOf()
-    private val dataService: WePartyDataService = FirebasePartyDataService()
     private val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
-    private val currentPartyId : PartyId? =  "-LvB5OTnc_NKHCRaP0up"
     private val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
     private var callback: LocationEngineCallback<LocationEngineResult> = object:
         LocationEngineCallback<LocationEngineResult> {
         override fun onSuccess(current: LocationEngineResult){
             val theCurrentLocation = current.lastLocation
-            println(theCurrentLocation)
-            println("panchode")
-            if(theCurrentLocation != null && currentPartyId != null && parties.get(currentPartyId)?.homeSafe == false){
-                dataService.SetLiveLocation(currentPartyId, theCurrentLocation, {},{})
+            val currentPartyId = CurrentParty.getPartyId()
+
+            if(theCurrentLocation != null) {
+                CurrentParty.setCurrentLocation(theCurrentLocation)
             }
 
+            if(theCurrentLocation != null && currentPartyId != "" && parties.get(currentPartyId)?.homeSafe == false){
+                FirebasePartyDataService.SetLiveLocation(currentPartyId, theCurrentLocation, {},{})
+            }
         }
 
         override fun onFailure(exception: Exception){
@@ -61,6 +58,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
             failToast.show()
         }
     }
+    private var stopGettingParties: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,30 +67,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
         // object or in the same activity which contains the mapview.
         Mapbox.getInstance(this, getString(R.string.access_token))
         setContentView(R.layout.activity_main)
-
         mapView?.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
         setSupportActionBar(toolbar)
 
+        // create party button
         party_fab.setOnClickListener { view ->
             val intent = Intent(this, PartyDetail :: class.java)
             startActivity(intent)
         }
 
-
+        // emergency call button
         follow_fab.setOnClickListener { view ->
             val intent = Intent(this, FollowParty :: class.java)
             startActivity(intent)
         }
 
         emergency_fab.setOnClickListener { view ->
-            val database = FirebaseDatabase.getInstance()
-            val myRef = database.getReference("message")
-//            myRef.setValue("hi").addOnCompleteListener()
             emergencyCall()
         }
 
+        // Looping handler
         val mainHandler = Handler(Looper.getMainLooper())
         mainHandler.post(object : Runnable {
             override fun run() {
@@ -100,6 +96,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                 mainHandler.postDelayed(this, 10000)
             }
         })
+
+        // Getting parties
+        stopGettingParties = FirebasePartyDataService.GetParties({ partiesLive ->
+            parties = partiesLive
+        }, {})
+
+
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
