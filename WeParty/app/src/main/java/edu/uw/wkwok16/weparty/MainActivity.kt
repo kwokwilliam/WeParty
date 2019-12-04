@@ -13,6 +13,7 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.firebase.database.FirebaseDatabase
+import com.mapbox.android.core.location.*
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.Mapbox
@@ -25,6 +26,7 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import edu.uw.wkwok16.weparty.DataService.FirebasePartyDataService
 import edu.uw.wkwok16.weparty.DataService.Party
+import edu.uw.wkwok16.weparty.DataService.PartyId
 import edu.uw.wkwok16.weparty.DataService.WePartyDataService
 
 import kotlinx.android.synthetic.main.activity_main.*
@@ -35,9 +37,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var mapboxMap: MapboxMap
-
+    private var parties: Map<PartyId, Party> = mapOf()
     private val dataService: WePartyDataService = FirebasePartyDataService()
+    private val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
+    private val currentPartyId : PartyId? =  "-LvB5OTnc_NKHCRaP0up"
+    private val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
+    private var callback: LocationEngineCallback<LocationEngineResult> = object:
+        LocationEngineCallback<LocationEngineResult> {
+        override fun onSuccess(current: LocationEngineResult){
+            val theCurrentLocation = current.lastLocation
+            println(theCurrentLocation)
+            println("panchode")
+            if(theCurrentLocation != null && currentPartyId != null && parties.get(currentPartyId)?.homeSafe == false){
+                dataService.SetLiveLocation(currentPartyId, theCurrentLocation, {},{})
+            }
 
+        }
+
+        override fun onFailure(exception: Exception){
+            val failToast = Toast.makeText(applicationContext, "can't give live service", Toast.LENGTH_LONG)
+            failToast.show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +87,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
             enableLocationComponent(it)
         }
     }
+
+    /**
+     * Set up the LocationEngine and the parameters for querying the device's location
+     */
+    @SuppressLint("MissingPermission")
+    private fun initLocationEngine() {
+       var  locationEngine = LocationEngineProvider.getBestLocationEngine(this)
+
+        var request = LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+            .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+            .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build()
+        locationEngine.requestLocationUpdates(request, callback, getMainLooper())
+        locationEngine.getLastLocation(callback)
+    }
+
 
     @SuppressLint("MissingPermission")
     private fun enableLocationComponent(loadedMapStyle: Style) {
@@ -97,6 +133,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                 // Set the LocationComponent's render mode
                 renderMode = RenderMode.COMPASS
             }
+            initLocationEngine()
         } else {
             permissionsManager = PermissionsManager(this)
             permissionsManager.requestLocationPermissions(this)
