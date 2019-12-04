@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_follow_party.*
 import java.io.File
+import java.io.FileReader
 import java.io.FileWriter
 
 class FollowParty : AppCompatActivity() {
@@ -21,11 +22,12 @@ class FollowParty : AppCompatActivity() {
             }
             val files = File(filesDir, "coordinates.txt")
             this.files = files
-            var currentCode = input_code.text.toString() + ", "
+            var currentCode = input_code.text.toString() + ","
 
             if (this.files != null) {
-                val writer = FileWriter(this.files as File)
-                writer.write(currentCode)
+                val checker = FileReader(files).readText()
+                val writer = FileWriter(files)
+                writer.write(checker + currentCode)
                 writer.close()
             }
             finish()
