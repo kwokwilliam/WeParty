@@ -36,13 +36,12 @@ import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener {
-
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var mapboxMap: MapboxMap
     private var parties: Map<PartyId, Party> = mapOf()
     private val dataService: WePartyDataService = FirebasePartyDataService()
     private val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
-    private val currentPartyId : PartyId? =  "-LvB5OTnc_NKHCRaP0up"
+    private var currentPartyId : PartyId? =  null
     private val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
     private var callback: LocationEngineCallback<LocationEngineResult> = object:
         LocationEngineCallback<LocationEngineResult> {
@@ -50,8 +49,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
             val theCurrentLocation = current.lastLocation
             println(theCurrentLocation)
             println("panchode")
-            if(theCurrentLocation != null && currentPartyId != null && parties.get(currentPartyId)?.homeSafe == false){
-                dataService.SetLiveLocation(currentPartyId, theCurrentLocation, {},{})
+            if(theCurrentLocation != null && currentPartyId != null && parties.get(currentPartyId as PartyId)?.homeSafe == false){
+                dataService.SetLiveLocation(currentPartyId as PartyId, theCurrentLocation, {},{})
             }
 
         }
@@ -61,6 +60,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
             failToast.show()
         }
     }
+    private var stopGettingParties: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,24 +69,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
         // object or in the same activity which contains the mapview.
         Mapbox.getInstance(this, getString(R.string.access_token))
         setContentView(R.layout.activity_main)
-
         mapView?.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
         setSupportActionBar(toolbar)
 
+        // create party button
         create_party_button.setOnClickListener { view ->
             val intent = Intent(this, PartyDetail :: class.java)
             startActivity(intent)
         }
 
+        // emergency call button
         fab.setOnClickListener { view ->
-            val database = FirebaseDatabase.getInstance()
-            val myRef = database.getReference("message")
-//            myRef.setValue("hi").addOnCompleteListener()
             emergencyCall()
         }
 
+        // Looping handler
         val mainHandler = Handler(Looper.getMainLooper())
         mainHandler.post(object : Runnable {
             override fun run() {
@@ -94,6 +93,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                 mainHandler.postDelayed(this, 10000)
             }
         })
+
+        // Getting parties
+        stopGettingParties = dataService.GetParties({ parties ->
+            parties.forEach { (partyId, party) ->
+                run {
+
+                }
+            }
+        }, {})
+
+
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -206,6 +216,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 
     override fun onStop() {
         super.onStop()
+        stopGettingParties?.invoke()
         mapView?.onStop()
     }
 
@@ -221,6 +232,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 
     override fun onDestroy() {
         super.onDestroy()
+        stopGettingParties?.invoke()
         mapView?.onDestroy()
     }
 

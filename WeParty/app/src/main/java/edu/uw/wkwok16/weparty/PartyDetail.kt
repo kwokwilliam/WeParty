@@ -13,6 +13,10 @@ class PartyDetail : AppCompatActivity() {
         setContentView(R.layout.activity_party_detail)
 
         party_next.setOnClickListener { view ->
+            // add party and on success start the intent with the party key
+
+
+
             val intent = Intent(this, PartyCreated :: class.java)
             startActivity(intent)
         }
