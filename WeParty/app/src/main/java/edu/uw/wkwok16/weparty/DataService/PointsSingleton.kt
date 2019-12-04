@@ -1,24 +1,20 @@
 package edu.uw.wkwok16.weparty.DataService
 
+import android.content.Context
 import android.location.Location
+import java.io.File
 import java.io.FileReader
 
 class PointsSingleton {
     companion object CurrentPoints {
-        private var currentParty = ""
-        private var location = Location("")
+        private var listOfIds: List<String>? = null
 
-        fun parseListofIds(){
-           var commaSeperated =  FileReader("coordinates.txt").readText()
-            println(commaSeperated)
+        fun setPartyId(newList: List<String>?) {
+            listOfIds = newList
         }
 
-        fun setPartyId(partyId: PartyId) {
-            currentParty = partyId
-        }
-
-        fun getPartyId (): PartyId {
-            return currentParty
+        fun getKeyList (): List<String>? {
+            return listOfIds
         }
 
 
