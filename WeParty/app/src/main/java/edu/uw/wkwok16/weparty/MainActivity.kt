@@ -30,6 +30,8 @@ import edu.uw.wkwok16.weparty.DataService.*
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import java.io.File
+import java.io.FileReader
 import java.util.*
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener {
@@ -62,7 +64,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        PointsSingleton.setContext(this)
+        var file = File(filesDir, "coordinates.txt")
+        val checker = FileReader(file).readText()
+        var result: List<String> = checker.split(",").dropLast(1)
+        PointsSingleton.setKeyList(result)
         // Mapbox access token is configured here. This needs to be called either in your application
         // object or in the same activity which contains the mapview.
         Mapbox.getInstance(this, getString(R.string.access_token))

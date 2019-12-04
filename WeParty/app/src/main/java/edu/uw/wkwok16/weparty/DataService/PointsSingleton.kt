@@ -9,7 +9,7 @@ class PointsSingleton {
     companion object CurrentPoints {
         private var listOfIds: List<String>? = null
 
-        fun setPartyId(newList: List<String>?) {
+        fun setKeyList(newList: List<String>?) {
             listOfIds = newList
         }
 
