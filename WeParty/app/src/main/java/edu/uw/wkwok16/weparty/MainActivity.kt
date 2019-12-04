@@ -75,7 +75,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 
         setSupportActionBar(toolbar)
 
+        create_party_button.setOnClickListener { view ->
+            val intent = Intent(this, PartyDetail :: class.java)
+            startActivity(intent)
+        }
+
         fab.setOnClickListener { view ->
+            val database = FirebaseDatabase.getInstance()
+            val myRef = database.getReference("message")
+//            myRef.setValue("hi").addOnCompleteListener()
             emergencyCall()
         }
 

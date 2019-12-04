@@ -11,9 +11,25 @@
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
 
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <include layout="@layout/content_main" />
+
+    <Button
+        android:id="@+id/create_party_button"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_margin="16dp"
+        android:background="@color/blue"
+        android:text="Create Party"
+        android:textColor="@color/cardview_light_background" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -23,20 +39,5 @@
         app:srcCompat="@drawable/emergencycall"
         android:tint="@color/white"
         android:layout_margin="@dimen/fab_margin" />
-
-    <Button
-        android:id="@+id/create_party_button"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="Create Party"
-        android:layout_gravity="bottom|center"
-        android:layout_margin="@dimen/fab_margin"/>
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:popupTheme="@style/AppTheme.PopupOverlay" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
