@@ -75,13 +75,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
         setSupportActionBar(toolbar)
 
         // create party button
-        create_party_button.setOnClickListener { view ->
+        party_fab.setOnClickListener { view ->
             val intent = Intent(this, PartyDetail :: class.java)
             startActivity(intent)
         }
 
         // emergency call button
-        fab.setOnClickListener { view ->
+        follow_fab.setOnClickListener { view ->
+            val intent = Intent(this, FollowParty :: class.java)
+            startActivity(intent)
+        }
+
+        emergency_fab.setOnClickListener { view ->
             emergencyCall()
         }
 

@@ -4,78 +4,68 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PartyCreated">
+    tools:context=".FollowParty">
 
     <TextView
-        android:id="@+id/text1"
+        android:id="@+id/input_code_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="75dp"
+        android:layout_marginTop="150dp"
         android:layout_marginEnd="16dp"
-        android:gravity="center"
-        android:text="Congrats"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textSize="50dp"
+        android:text="Input Party Code"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/text2"
+    <EditText
+        android:id="@+id/input_code"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:gravity="center"
-        android:text="Party Created!"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textSize="50dp"
+        android:background="@drawable/black_border"
+        android:ems="10"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text1" />
+        app:layout_constraintTop_toBottomOf="@+id/input_code_text" />
 
     <TextView
-        android:id="@+id/text3"
+        android:id="@+id/partier_name_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="36dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:gravity="center"
-        android:text="Your Party ID:"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textSize="36dp"
-        app:layout_constraintBottom_toTopOf="@+id/party_id"
+        android:text="Input Partier's First Name"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/input_code" />
 
-    <TextView
-        android:id="@+id/party_id"
+    <EditText
+        android:id="@+id/partier_name_input"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="200dp"
-        android:background="@drawable/blue_border"
-        android:gravity="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textSize="50dp"
-        app:layout_constraintBottom_toTopOf="@+id/party_share"
+        android:ems="10"
+        android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/partier_name_text"
+        android:background="@drawable/black_border"/>
 
     <Button
-        android:id="@+id/party_share"
+        android:id="@+id/party_follow"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="24dp"
         android:background="@color/blue"
-        android:text="Share Code"
+        android:text="Follow Party"
         android:textColor="@color/cardview_light_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
