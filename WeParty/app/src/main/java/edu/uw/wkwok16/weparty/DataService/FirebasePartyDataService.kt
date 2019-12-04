@@ -118,33 +118,7 @@ class FirebasePartyDataService: WePartyDataService {
         }
     }
 
-    override fun AddUser(
-        phoneNumber: String,
-        name: String,
-        onSuccess: () -> Unit,
-        onFailure: () -> Unit
-    ) {
-        val ref = db.getReference(USER_IDS_TO_NAME)
-        val childUpdates = HashMap<String, Any>()
-        childUpdates[phoneNumber] = name
-        ref.updateChildren(childUpdates).addOnSuccessListener {
-            onSuccess()
-        }.addOnFailureListener {
-            onFailure()
-        }
-    }
-
-    override fun UpdateUser(
-        phoneNumber: String,
-        name: String,
-        onSuccess: () -> Unit,
-        onFailure: () -> Unit
-    ) {
-        AddUser(phoneNumber, name, onSuccess, onFailure) // lol
-    }
-
     companion object Paths {
-        const val USER_IDS_TO_NAME = "UserIDsToName/"
         const val USER_PARTIES = "UserParties/"
 
         fun specificUserParty(partyKey: PartyId): String {
@@ -157,26 +131,15 @@ class FirebasePartyDataService: WePartyDataService {
         homeLocation.latitude = snap.child(Party.HOME_LOCATION).child(Party.LATITUDE).value as Double
         homeLocation.longitude = snap.child(Party.HOME_LOCATION).child(Party.LONGITUDE).value as Double
 
-        val partyLocation = Location(Party.PARTY_LOCATION)
-        partyLocation.latitude = snap.child(Party.PARTY_LOCATION).child(Party.LATITUDE).value as Double
-        partyLocation.longitude = snap.child(Party.PARTY_LOCATION).child(Party.LONGITUDE).value as Double
-
-        val userLocation = Location(Party.USER_LOCATION)
-        userLocation.latitude = snap.child(Party.USER_LOCATION).child(Party.LATITUDE).value as Double
-        userLocation.longitude = snap.child(Party.USER_LOCATION).child(Party.LONGITUDE).value as Double
-
         val liveLocation = Location(Party.LIVE_LOCATION)
         liveLocation.latitude = snap.child(Party.LIVE_LOCATION).child(Party.LATITUDE).value as Double
         liveLocation.longitude = snap.child(Party.LIVE_LOCATION).child(Party.LONGITUDE).value as Double
 
         return Party(
             snap.child(Party.USER_PHONE_NUMBER).value as String,
+            snap.child(Party.USER_NAME).value as String,
             snap.child(Party.NAME).value as String,
             homeLocation,
-            partyLocation,
-            Date(snap.child(Party.TIME_START).value as Long),
-            Date(snap.child(Party.TIME_END).value as Long),
-            userLocation,
             snap.child(Party.EMERGENCY_CALLED).value as Boolean,
             liveLocation,
             snap.child(Party.HOME_SAFE).value as Boolean

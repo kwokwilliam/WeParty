@@ -67,24 +67,4 @@ interface WePartyDataService {
         onSuccess: () -> Unit,
         onFailure: () -> Unit
     )
-
-    /**
-     * Adds a user to the database via their phone number as their ID
-     */
-    fun AddUser(
-        phoneNumber: String,
-        name: String,
-        onSuccess: () -> Unit,
-        onFailure: () -> Unit
-    )
-
-    /**
-     * Updates a user in the database via their phone number
-     */
-    fun UpdateUser(
-        phoneNumber: String,
-        name: String,
-        onSuccess: () -> Unit,
-        onFailure: () -> Unit
-    )
 }
