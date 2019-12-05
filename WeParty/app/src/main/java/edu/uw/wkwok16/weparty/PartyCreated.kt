@@ -28,7 +28,7 @@ class PartyCreated : AppCompatActivity() {
 
         party_share.setOnClickListener { view ->
             val sendIntent = Intent(Intent.ACTION_VIEW)
-            sendIntent.data = Uri.parse("sms:3605189341")
+            sendIntent.data = Uri.parse("sms:")
             sendIntent.putExtra("sms_body", sms_text)
             startActivity(sendIntent)
         }
