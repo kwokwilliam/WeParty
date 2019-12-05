@@ -16,6 +16,7 @@ import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
@@ -51,7 +52,7 @@ import java.io.FileReader
 import java.io.FileWriter
 import java.util.*
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener, MapboxMap.OnMapClickListener {
 
   private val SOURCE_ID = "SOURCE_ID";
   private val ICON_ID = "ICON_ID";
@@ -242,12 +243,36 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
+        mapboxMap.addOnMapClickListener(this)
         mapboxMap.setStyle(Style.Builder().fromUri(
             "mapbox://styles/mapbox/streets-v10")) {
 
             // Map is set up and the style has loaded. Now you can add data or make other map adjustments
             enableLocationComponent(it)
         }
+    }
+
+    override fun onMapClick(point: LatLng): Boolean {
+        val keys = findMatchingKeys()
+        var minDistance = Double.MAX_VALUE
+        var nearestParty: Party? = null
+        val parties = CurrentParty.getParties()
+
+        for (key in keys) {
+            val party = parties.get(key) as Party
+            val distance = Math.pow(Math.abs(point.latitude - party.liveLocation.latitude), 2.0) + Math.pow(Math.abs(point.longitude - party.liveLocation.longitude), 2.0)
+            if (distance < minDistance) {
+                minDistance = distance
+                nearestParty = party
+            }
+        }
+
+        if (nearestParty != null && minDistance < 0.00002) {
+            val toast = Toast.makeText(applicationContext, nearestParty.firstName, Toast.LENGTH_LONG)
+            toast.show()
+        }
+
+        return true
     }
 
     /**
