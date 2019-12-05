@@ -27,11 +27,13 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import edu.uw.wkwok16.weparty.DataService.*
+import kotlinx.android.synthetic.main.activity_follow_party.*
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.io.File
 import java.io.FileReader
+import java.io.FileWriter
 import java.util.*
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener {
@@ -105,8 +107,49 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
         // Getting parties
         stopGettingParties = FirebasePartyDataService.GetParties({ partiesLive ->
             parties = partiesLive
-        }, {})
 
+            // BUILD PUSH NOTIFICATIONS
+            val newList = mutableListOf<String>()
+            val list = PointsSingleton.getKeyList()
+            var deletedKeysCount = 0;
+            list?.forEach { key ->
+                run {
+                    if (parties.containsKey(key)) {
+                        val party = parties.get(key)
+                        if (party != null && party.homeSafe) {
+                            buildNotification("${party.firstName} has made it home safe!")
+//                            var file = File(filesDir, "coordinates.txt")
+//                            val checker = FileReader(file).readText()
+//                            var result: List<String> = checker.split(",").dropLast(1)
+
+                            deletedKeysCount++
+                        } else {
+                            newList.add(key)
+                        }
+
+                        if (party != null && party.emergencyCalled) {
+                            buildNotification("${party.firstName} has alerted the authorities!")
+                        }
+                    }
+                }
+            }
+
+            if (deletedKeysCount > 0) {
+                if(!filesDir.exists()){
+                    filesDir.mkdirs()
+                }
+                val files = File(filesDir, "coordinates.txt")
+                var listAsString = newList.joinToString(",")
+                val writer = FileWriter(files)
+                writer.write(listAsString)
+                writer.close()
+
+                PointsSingleton.setKeyList(newList)
+            }
+        }, {})
+    }
+
+    private fun buildNotification(message: String) {
 
     }
 
