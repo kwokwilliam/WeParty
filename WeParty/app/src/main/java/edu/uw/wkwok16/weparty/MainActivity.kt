@@ -1,10 +1,13 @@
 package edu.uw.wkwok16.weparty
 
 import android.annotation.SuppressLint
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.location.Location
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.util.Strings
 import com.google.firebase.database.FirebaseDatabase
@@ -53,7 +57,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
   private val LAYER_ID = "LAYER_ID";
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var mapboxMap: MapboxMap
-
+    private var totalNotifications = 0
     private val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
     private val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
     private var symbolLayerIconFeatureList = mutableListOf<Feature>()
@@ -134,7 +138,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
             CurrentParty.setParties(partiesLive)
             val confirmedList = findMatchingKeys()
             var newList: MutableList<String> = mutableListOf()
-            var toDelete = ""
             var deletedKeysCount = 0
             symbolLayerIconFeatureList = mutableListOf<Feature>()
             for(current in confirmedList){
@@ -145,11 +148,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 
                 if(currentParty.homeSafe) {
                     buildNotification("${currentParty.firstName} has made it home safe!")
-                    toDelete = current
                     deletedKeysCount++
                 } else if (currentParty.emergencyCalled) {
                     buildNotification("${currentParty.firstName} has alerted the authorities!")
-                    toDelete = current
                     deletedKeysCount++
                 } else {
                     newList.add(current)
@@ -198,7 +199,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
     }
 
     fun buildNotification(string: String) {
-        Log.i("ASDF", "HOME SAFE ${string}")
+        totalNotifications++
+        val builder: NotificationCompat.Builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationCompat.Builder(this, "NOTIF_MAIN")
+        } else {
+            NotificationCompat.Builder(this, "basic")
+        }
+
+        builder.setSmallIcon(android.R.drawable.ic_menu_add)
+            .setContentTitle("WeParty")
+            .setContentText(string)
+            .setAutoCancel(true)
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(string)
+            )
+
+        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(totalNotifications, builder.build())
     }
 
    private fun findMatchingKeys():MutableList<String>{
