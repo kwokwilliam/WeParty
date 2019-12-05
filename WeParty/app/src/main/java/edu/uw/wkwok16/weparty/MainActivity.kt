@@ -2,6 +2,7 @@ package edu.uw.wkwok16.weparty
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
@@ -18,7 +19,11 @@ import com.google.firebase.database.FirebaseDatabase
 import com.mapbox.android.core.location.*
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
@@ -26,6 +31,10 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import edu.uw.wkwok16.weparty.DataService.*
 import kotlinx.android.synthetic.main.activity_follow_party.*
 
@@ -37,11 +46,16 @@ import java.io.FileWriter
 import java.util.*
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener {
+
+  private val SOURCE_ID = "SOURCE_ID";
+  private val ICON_ID = "ICON_ID";
+  private val LAYER_ID = "LAYER_ID";
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var mapboxMap: MapboxMap
-    private var parties: Map<PartyId, Party> = mapOf()
+
     private val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
     private val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
+    private var symbolLayerIconFeatureList = mutableListOf<Feature>()
     private var callback: LocationEngineCallback<LocationEngineResult> = object:
         LocationEngineCallback<LocationEngineResult> {
         override fun onSuccess(current: LocationEngineResult){
@@ -52,7 +66,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                 CurrentParty.setCurrentLocation(theCurrentLocation)
             }
 
-            if(theCurrentLocation != null && currentPartyId != "" && parties.get(currentPartyId)?.homeSafe == false){
+            if(theCurrentLocation != null && currentPartyId != "" && CurrentParty.getParties().get(currentPartyId)?.homeSafe == false){
                 FirebasePartyDataService.SetLiveLocation(currentPartyId, theCurrentLocation, {},{})
             }
         }
@@ -66,10 +80,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!filesDir.exists()) {
+            filesDir.mkdirs()
+        }
         var file = File(filesDir, "coordinates.txt")
-        val checker = FileReader(file).readText()
-        var result: List<String> = checker.split(",").dropLast(1)
-        PointsSingleton.setKeyList(result)
+        if (file.exists()) {
+            val checker = FileReader(file).readText()
+            var result: List<String> = checker.split(",").dropLast(1)
+            PointsSingleton.setKeyList(result)
+        } else {
+            file.createNewFile()
+        }
         // Mapbox access token is configured here. This needs to be called either in your application
         // object or in the same activity which contains the mapview.
         Mapbox.getInstance(this, getString(R.string.access_token))
@@ -104,54 +126,67 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
             }
         })
 
+
+
         // Getting parties
         stopGettingParties = FirebasePartyDataService.GetParties({ partiesLive ->
-            parties = partiesLive
+            CurrentParty.setParties(partiesLive)
+            val confirmedList = findMatchingKeys()
+            symbolLayerIconFeatureList = mutableListOf<Feature>()
+            for(current in confirmedList){
+                val currentParty = CurrentParty.getParties().get(current)
+                    val currentLocation = currentParty!!.liveLocation
+                    symbolLayerIconFeatureList.add(Feature.fromGeometry(
+                        Point.fromLngLat(currentLocation.longitude, currentLocation.latitude)))
 
-            // BUILD PUSH NOTIFICATIONS
-            val newList = mutableListOf<String>()
-            val list = PointsSingleton.getKeyList()
-            var deletedKeysCount = 0;
-            list?.forEach { key ->
-                run {
-                    if (parties.containsKey(key)) {
-                        val party = parties.get(key)
-                        if (party != null && party.homeSafe) {
-                            buildNotification("${party.firstName} has made it home safe!")
-//                            var file = File(filesDir, "coordinates.txt")
-//                            val checker = FileReader(file).readText()
-//                            var result: List<String> = checker.split(",").dropLast(1)
-
-                            deletedKeysCount++
-                        } else {
-                            newList.add(key)
-                        }
-
-                        if (party != null && party.emergencyCalled) {
-                            buildNotification("${party.firstName} has alerted the authorities!")
-                        }
-                    }
-                }
             }
+            mapboxMap.setStyle(Style.Builder().fromUri("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41")
 
-            if (deletedKeysCount > 0) {
-                if(!filesDir.exists()){
-                    filesDir.mkdirs()
-                }
-                val files = File(filesDir, "coordinates.txt")
-                var listAsString = newList.joinToString(",")
-                val writer = FileWriter(files)
-                writer.write(listAsString)
-                writer.close()
+                // Add the SymbolLayer icon image to the map style
+               .withImage(ICON_ID, getDrawable(android.R.drawable.btn_star)!!)
 
-                PointsSingleton.setKeyList(newList)
-            }
+                // Adding a GeoJson source for the SymbolLayer icons.
+                .withSource( GeoJsonSource(SOURCE_ID,
+                    FeatureCollection.fromFeatures(symbolLayerIconFeatureList))
+                )
+
+                // Adding the actual SymbolLayer to the map style. An offset is added that the bottom of the red
+                // marker icon gets fixed to the coordinate, rather than the middle of the icon being fixed to
+                // the coordinate point. This is offset is not always needed and is dependent on the image
+                // that you use for the SymbolLayer icon.
+                .withLayer(
+                    SymbolLayer(LAYER_ID, SOURCE_ID)
+                .withProperties(
+                    PropertyFactory.iconImage(ICON_ID),
+                    iconAllowOverlap(true),
+                    iconIgnorePlacement(true)
+            )
+            ))
+
+
+
         }, {})
     }
 
-    private fun buildNotification(message: String) {
+   private fun findMatchingKeys():MutableList<String>{
+        var confirmedPartyIds = mutableListOf<String>()
+        val partyIds = PointsSingleton.getKeyList()
+        val partyKeys = CurrentParty.getParties().keys
+        if(partyIds != null){
+            for (current in partyIds){
+                if(partyKeys.contains(current as PartyId)){
+                    confirmedPartyIds.add(current)
+                }
+            }
+        }
 
+       Log.i("LOG", partyKeys.toString())
+       Log.i("LOG2", confirmedPartyIds.toString())
+
+       return confirmedPartyIds
     }
+
+
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap

@@ -45,6 +45,16 @@ class FirebasePartyDataService {
             }
         }
 
+        fun UpdateNothing (
+            partyId: PartyId,
+            party: Party
+        ) {
+            val ref = db.getReference(USER_PARTIES)
+            val childUpdates = HashMap<String, Any>()
+            childUpdates[partyId] = party.toMap()
+            ref.updateChildren(childUpdates)
+        }
+
         override fun GetParties(
             functionToRun: (parties: Map<PartyId, Party>) -> Unit,
             onFailure: () -> Unit
