@@ -1,10 +1,13 @@
 package edu.uw.wkwok16.weparty
 
 import android.annotation.SuppressLint
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.location.Location
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,7 +17,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.google.android.gms.common.util.Strings
 import com.google.firebase.database.FirebaseDatabase
 import com.mapbox.android.core.location.*
 import com.mapbox.android.core.permissions.PermissionsListener
@@ -36,11 +41,13 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import edu.uw.wkwok16.weparty.DataService.*
+import kotlinx.android.synthetic.main.activity_follow_party.*
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.io.File
 import java.io.FileReader
+import java.io.FileWriter
 import java.util.*
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener {
@@ -50,7 +57,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
   private val LAYER_ID = "LAYER_ID";
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var mapboxMap: MapboxMap
-
+    private var totalNotifications = 0
     private val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
     private val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
     private var symbolLayerIconFeatureList = mutableListOf<Feature>()
@@ -130,12 +137,24 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
         stopGettingParties = FirebasePartyDataService.GetParties({ partiesLive ->
             CurrentParty.setParties(partiesLive)
             val confirmedList = findMatchingKeys()
+            var newList: MutableList<String> = mutableListOf()
+            var deletedKeysCount = 0
             symbolLayerIconFeatureList = mutableListOf<Feature>()
             for(current in confirmedList){
                 val currentParty = CurrentParty.getParties().get(current)
-                    val currentLocation = currentParty!!.liveLocation
-                    symbolLayerIconFeatureList.add(Feature.fromGeometry(
-                        Point.fromLngLat(currentLocation.longitude, currentLocation.latitude)))
+                val currentLocation = currentParty!!.liveLocation
+                symbolLayerIconFeatureList.add(Feature.fromGeometry(
+                    Point.fromLngLat(currentLocation.longitude, currentLocation.latitude)))
+
+                if(currentParty.homeSafe) {
+                    buildNotification("${currentParty.firstName} has made it home safe!")
+                    deletedKeysCount++
+                } else if (currentParty.emergencyCalled) {
+                    buildNotification("${currentParty.firstName} has alerted the authorities!")
+                    deletedKeysCount++
+                } else {
+                    newList.add(current)
+                }
 
             }
             mapboxMap.setStyle(Style.Builder().fromUri("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41")
@@ -161,9 +180,42 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
             )
             ))
 
+            if (deletedKeysCount > 0) {
+                if (!filesDir.exists()) {
+                    filesDir.mkdirs()
+                }
+                val files = File(filesDir, "coordinates.txt")
+                var listAsString = newList.joinToString(",")
 
+                if (files != null) {
+                    val writer = FileWriter(files)
+                    writer.write(listAsString)
+                    writer.close()
+                }
 
+                PointsSingleton.setKeyList(newList)
+            }
         }, {})
+    }
+
+    fun buildNotification(string: String) {
+        totalNotifications++
+        val builder: NotificationCompat.Builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationCompat.Builder(this, "NOTIF_MAIN")
+        } else {
+            NotificationCompat.Builder(this, "basic")
+        }
+
+        builder.setSmallIcon(android.R.drawable.ic_menu_add)
+            .setContentTitle("WeParty")
+            .setContentText(string)
+            .setAutoCancel(true)
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(string)
+            )
+
+        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(totalNotifications, builder.build())
     }
 
    private fun findMatchingKeys():MutableList<String>{
@@ -177,9 +229,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                 }
             }
         }
-
-       Log.i("LOG", partyKeys.toString())
-       Log.i("LOG2", confirmedPartyIds.toString())
 
        return confirmedPartyIds
     }
@@ -320,6 +369,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
     }
 
     fun emergencyCall() {
+        FirebasePartyDataService.SetEmergencyCalled(CurrentParty.getPartyId(), {}, {} )
         val intent = Intent(Intent.ACTION_DIAL)
         intent.data = Uri.parse("tel:911")
         intent.resolveActivity(packageManager)?.let {

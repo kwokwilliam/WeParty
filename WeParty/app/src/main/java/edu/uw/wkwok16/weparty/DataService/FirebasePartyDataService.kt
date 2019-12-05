@@ -119,13 +119,17 @@ class FirebasePartyDataService {
             onSuccess: () -> Unit,
             onFailure: () -> Unit
         ) {
-            val ref = db.getReference(specificUserParty(partyId))
-            val childUpdates = HashMap<String, Any>()
-            childUpdates[Party.EMERGENCY_CALLED] = true
-            ref.updateChildren(childUpdates).addOnSuccessListener {
-                onSuccess()
-            }.addOnFailureListener {
-                onFailure()
+            if (partyId != "") {
+                val ref = db.getReference(specificUserParty(partyId))
+                Log.i("TEST", specificUserParty(partyId))
+
+                val childUpdates = HashMap<String, Any>()
+                childUpdates[Party.EMERGENCY_CALLED] = true
+                ref.updateChildren(childUpdates).addOnSuccessListener {
+                    onSuccess()
+                }.addOnFailureListener {
+                    onFailure()
+                }
             }
         }
 
