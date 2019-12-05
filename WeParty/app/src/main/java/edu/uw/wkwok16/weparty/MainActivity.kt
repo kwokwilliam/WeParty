@@ -15,6 +15,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.google.android.gms.common.util.Strings
 import com.google.firebase.database.FirebaseDatabase
 import com.mapbox.android.core.location.*
 import com.mapbox.android.core.permissions.PermissionsListener
@@ -132,12 +133,27 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
         stopGettingParties = FirebasePartyDataService.GetParties({ partiesLive ->
             CurrentParty.setParties(partiesLive)
             val confirmedList = findMatchingKeys()
+            var newList: MutableList<String> = mutableListOf()
+            var toDelete = ""
+            var deletedKeysCount = 0
             symbolLayerIconFeatureList = mutableListOf<Feature>()
             for(current in confirmedList){
                 val currentParty = CurrentParty.getParties().get(current)
-                    val currentLocation = currentParty!!.liveLocation
-                    symbolLayerIconFeatureList.add(Feature.fromGeometry(
-                        Point.fromLngLat(currentLocation.longitude, currentLocation.latitude)))
+                val currentLocation = currentParty!!.liveLocation
+                symbolLayerIconFeatureList.add(Feature.fromGeometry(
+                    Point.fromLngLat(currentLocation.longitude, currentLocation.latitude)))
+
+                if(currentParty.homeSafe) {
+                    buildNotification("${currentParty.firstName} has made it home safe!")
+                    toDelete = current
+                    deletedKeysCount++
+                } else if (currentParty.emergencyCalled) {
+                    buildNotification("${currentParty.firstName} has alerted the authorities!")
+                    toDelete = current
+                    deletedKeysCount++
+                } else {
+                    newList.add(current)
+                }
 
             }
             mapboxMap.setStyle(Style.Builder().fromUri("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41")
@@ -163,9 +179,30 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
             )
             ))
 
+            if (deletedKeysCount > 0) {
+                if (!filesDir.exists()) {
+                    filesDir.mkdirs()
+                }
+                val files = File(filesDir, "coordinates.txt")
+                var listAsString = newList.joinToString(",")
+                val writer = FileWriter(files)
+                writer.write(listAsString)
+                writer.close()
+
+                PointsSingleton.setKeyList(newList)
+                FirebasePartyDataService.UpdateNothing(
+                    "",
+                    CurrentParty.getParties().get(toDelete) as Party // This should never be null
+                )
+            }
+
 
 
         }, {})
+    }
+
+    fun buildNotification(string: String) {
+
     }
 
    private fun findMatchingKeys():MutableList<String>{
@@ -179,9 +216,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                 }
             }
         }
-
-       Log.i("LOG", partyKeys.toString())
-       Log.i("LOG2", confirmedPartyIds.toString())
 
        return confirmedPartyIds
     }
