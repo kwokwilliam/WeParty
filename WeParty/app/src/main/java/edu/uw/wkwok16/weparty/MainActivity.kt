@@ -185,24 +185,20 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                 }
                 val files = File(filesDir, "coordinates.txt")
                 var listAsString = newList.joinToString(",")
-                val writer = FileWriter(files)
-                writer.write(listAsString)
-                writer.close()
+
+                if (files != null) {
+                    val writer = FileWriter(files)
+                    writer.write(listAsString)
+                    writer.close()
+                }
 
                 PointsSingleton.setKeyList(newList)
-                FirebasePartyDataService.UpdateNothing(
-                    "",
-                    CurrentParty.getParties().get(toDelete) as Party // This should never be null
-                )
             }
-
-
-
         }, {})
     }
 
     fun buildNotification(string: String) {
-
+        Log.i("ASDF", "HOME SAFE ${string}")
     }
 
    private fun findMatchingKeys():MutableList<String>{
@@ -356,6 +352,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
     }
 
     fun emergencyCall() {
+        FirebasePartyDataService.SetEmergencyCalled(CurrentParty.getPartyId(), {}, {} )
         val intent = Intent(Intent.ACTION_DIAL)
         intent.data = Uri.parse("tel:911")
         intent.resolveActivity(packageManager)?.let {
