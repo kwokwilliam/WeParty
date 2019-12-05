@@ -4,6 +4,7 @@ import android.location.Location
 
 class CurrentParty {
     companion object CurrentPartyId {
+        private var parties: Map<PartyId, Party> = mapOf()
         private var currentParty = ""
         private var location = Location("")
 
@@ -21,6 +22,14 @@ class CurrentParty {
 
         fun setCurrentLocation(loc: Location) {
             location = loc
+        }
+
+        fun setParties(partiesIn: Map<PartyId, Party>) {
+            parties = partiesIn
+        }
+
+        fun getParties(): Map<PartyId, Party> {
+            return parties
         }
     }
 }

@@ -31,8 +31,6 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
@@ -52,7 +50,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
   private val LAYER_ID = "LAYER_ID";
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var mapboxMap: MapboxMap
-    private var parties: Map<PartyId, Party> = mapOf()
+
     private val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
     private val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
     private var symbolLayerIconFeatureList = mutableListOf<Feature>()
@@ -66,7 +64,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                 CurrentParty.setCurrentLocation(theCurrentLocation)
             }
 
-            if(theCurrentLocation != null && currentPartyId != "" && parties.get(currentPartyId)?.homeSafe == false){
+            if(theCurrentLocation != null && currentPartyId != "" && CurrentParty.getParties().get(currentPartyId)?.homeSafe == false){
                 FirebasePartyDataService.SetLiveLocation(currentPartyId, theCurrentLocation, {},{})
             }
         }
@@ -80,10 +78,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!filesDir.exists()) {
+            filesDir.mkdirs()
+        }
         var file = File(filesDir, "coordinates.txt")
-        val checker = FileReader(file).readText()
-        var result: List<String> = checker.split(",").dropLast(1)
-        PointsSingleton.setKeyList(result)
+        if (file.exists()) {
+            val checker = FileReader(file).readText()
+            var result: List<String> = checker.split(",").dropLast(1)
+            PointsSingleton.setKeyList(result)
+        } else {
+            file.createNewFile()
+        }
         // Mapbox access token is configured here. This needs to be called either in your application
         // object or in the same activity which contains the mapview.
         Mapbox.getInstance(this, getString(R.string.access_token))
@@ -122,12 +128,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 
         // Getting parties
         stopGettingParties = FirebasePartyDataService.GetParties({ partiesLive ->
-            parties = partiesLive
+            CurrentParty.setParties(partiesLive)
             val confirmedList = findMatchingKeys()
             symbolLayerIconFeatureList = mutableListOf<Feature>()
             for(current in confirmedList){
-                val current = parties.get(current)
-                    val currentLocation = current!!.liveLocation
+                val currentParty = CurrentParty.getParties().get(current)
+                    val currentLocation = currentParty!!.liveLocation
                     symbolLayerIconFeatureList.add(Feature.fromGeometry(
                         Point.fromLngLat(currentLocation.longitude, currentLocation.latitude)))
 
@@ -163,7 +169,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
    private fun findMatchingKeys():MutableList<String>{
         var confirmedPartyIds = mutableListOf<String>()
         val partyIds = PointsSingleton.getKeyList()
-        val partyKeys = parties.keys
+        val partyKeys = CurrentParty.getParties().keys
         if(partyIds != null){
             for (current in partyIds){
                 if(partyKeys.contains(current as PartyId)){
@@ -171,7 +177,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                 }
             }
         }
-        return confirmedPartyIds
+
+       Log.i("LOG", partyKeys.toString())
+       Log.i("LOG2", confirmedPartyIds.toString())
+
+       return confirmedPartyIds
     }
 
 
