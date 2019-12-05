@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.util.Strings
@@ -122,6 +123,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
             emergencyCall()
         }
 
+        home_safe_fab.setOnClickListener {
+            view -> homeSafe()
+        }
+
         // Looping handler
         val mainHandler = Handler(Looper.getMainLooper())
         mainHandler.post(object : Runnable {
@@ -177,7 +182,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
                     PropertyFactory.iconImage(ICON_ID),
                     iconAllowOverlap(true),
                     iconIgnorePlacement(true)
-            )
+                )
             ))
 
             if (deletedKeysCount > 0) {
@@ -375,5 +380,33 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
         intent.resolveActivity(packageManager)?.let {
             startActivity(intent)
         }
+    }
+
+    fun homeSafe() {
+        val dialogBuilder = AlertDialog.Builder(this)
+        dialogBuilder.setMessage("Mark as home safe?")
+            .setCancelable(true)
+            .setPositiveButton("Yes!") { dialog, id ->
+                val currentPartyId = CurrentParty.getPartyId()
+                if (currentPartyId != "") {
+                    val currentParty = CurrentParty.getParties().get(currentPartyId) as Party
+                    currentParty.homeSafe = true
+                    FirebasePartyDataService.UpdateParty(CurrentParty.getPartyId(), currentParty, {}, {
+                        val toast = Toast.makeText(applicationContext, "Failed to update party", Toast.LENGTH_SHORT)
+                        toast.show()
+                    })
+                    val text = "Home safe!"
+                    val duration = Toast.LENGTH_SHORT
+                    val toast = Toast.makeText(applicationContext, text, duration)
+                    toast.show()
+                }
+                dialog.cancel()
+            }
+            .setNegativeButton("No, still partying!") { dialog, id -> dialog.cancel()
+            }
+
+        val alert = dialogBuilder.create()
+        alert.setTitle("Home Safe")
+        alert.show()
     }
 }

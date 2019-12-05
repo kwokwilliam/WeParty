@@ -12,7 +12,7 @@ data class Party(
     val homeLocation: Location,
     val emergencyCalled: Boolean,
     val liveLocation: Location,
-    val homeSafe: Boolean
+    var homeSafe: Boolean
 ) {
     @Exclude
     fun toMap(): Map<String, Any?> {
